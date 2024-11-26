@@ -1,0 +1,55 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  redisinsight:
+    depends_on:
+      - redis
+    image: redislabs/redisinsight:latest
+    ports:
+      - "5540:5540"
+
+  api_server:
+    depends_on:
+      - redis
+    build:
+      context: ./api_server
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    labels:
+      - "traefik.http.routers.api_server.rule=(PathPrefix(`/api`) || PathPrefix(`/auth`))"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+
+  traefik:
+    depends_on:
+      - api_server
+      - frontend
+    image: traefik:v3
+    command:
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    privileged: true
+    labels:
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.mydashboard.service=api@internal"

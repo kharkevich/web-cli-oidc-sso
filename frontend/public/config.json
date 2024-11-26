@@ -1,0 +1,6 @@
+{
+    "authUrl": "/auth/web/login",
+    "callbackUrl": "/auth/web/callback",
+    "apiBaseUrl": "/api",
+    "redirectUrl": "http://localhost:8000/callback"
+}
