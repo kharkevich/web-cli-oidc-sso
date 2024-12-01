@@ -23,5 +23,7 @@ def api_call(ctx, endpoint, method="GET", body=None):
         logging.warning("Token expired or invalid. Re-authorizing...")
         token = authorize(ctx)
         return api_call(ctx, endpoint, method, body)
+    elif response.status_code == 403:
+        logging.error("You do not have access to this resource")
     else:
         raise ValueError(f"Error: {response.status_code} - {response.text}")

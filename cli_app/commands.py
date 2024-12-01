@@ -15,7 +15,8 @@ def hello(ctx):
 
 def say_hello(ctx):
     response = api_call(ctx, "/api/hello")
-    colorlogging.show_info(response["message"])
+    if response not in (None, {}):
+        colorlogging.show_info(response["message"])
 
 
 @click.command()

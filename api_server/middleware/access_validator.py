@@ -58,7 +58,7 @@ class AccessValidatorMiddleware(BaseHTTPMiddleware):
             if not any(
                 group in user.get("groups", []) for group in Config.oidc_allowed_groups
             ):
-                return HTTPException(
+                raise HTTPException(
                     status_code=403,
                     detail="User does not have access to this resource",
                 )
@@ -71,7 +71,4 @@ class AccessValidatorMiddleware(BaseHTTPMiddleware):
                 content={"message": e.detail},
             )
         except Exception as e:
-            return JSONResponse(
-                status_code=500,
-                content={"message": "Internal server error"},
-            )
+            raise Exception(e)
