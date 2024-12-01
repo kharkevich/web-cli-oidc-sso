@@ -58,6 +58,7 @@ class AccessValidatorMiddleware(BaseHTTPMiddleware):
             if not any(
                 group in user.get("groups", []) for group in Config.oidc_allowed_groups
             ):
+                logger.error(f"User: {user.get('name')}")
                 raise HTTPException(
                     status_code=403,
                     detail="User does not have access to this resource",
